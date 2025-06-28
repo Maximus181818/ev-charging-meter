@@ -51,15 +51,7 @@ const EVChargingMeter = () => {
   
   // Initialize charging logs from localStorage or default data
   const getInitialChargingLogs = () => {
-    const stored = localStorage.getItem('evChargingLogs');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (error) {
-        console.error('Error parsing stored data:', error);
-      }
-    }
-    // Default data if nothing stored
+    // Default data since localStorage is not available
     return [
       { id: 1, user: 'Gal', date: '2025-06-25', duration: 2.5, timestamp: Date.now() },
       { id: 2, user: 'Guy', date: '2025-06-24', duration: 1.5, timestamp: Date.now() },
@@ -101,11 +93,6 @@ const EVChargingMeter = () => {
     key: null,
     direction: 'asc'
   });
-
-  // Save charging logs to localStorage whenever they change
-  useEffect(() => {
-    localStorage.setItem('evChargingLogs', JSON.stringify(chargingLogs));
-  }, [chargingLogs]);
 
   // Generate time options (30 min to 24 hours, 30 min increments)
   const generateTimeOptions = () => {
@@ -347,7 +334,6 @@ const EVChargingMeter = () => {
   // Handle database restart (admin function)
   const handleRestartDatabase = () => {
     setChargingLogs([]);
-    localStorage.removeItem('evChargingLogs'); // Clear localStorage as well
     setShowConfirmRestart(false);
     // Show a brief confirmation message
     alert('Database restarted successfully! All charging logs have been permanently deleted.');
@@ -387,10 +373,19 @@ const EVChargingMeter = () => {
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
           <div className="text-center mb-6">
-            <div className="bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 relative">
-              <Car className="text-white text-2xl" />
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-400 rounded-full flex items-center justify-center">
-                <div className="w-2 h-2 bg-yellow-600 rounded-full"></div>
+            <div className="bg-black w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 relative">
+              <div className="flex items-center space-x-1">
+                <span className="text-white text-lg font-bold">ITI</span>
+                {/* Lightning/EV Charging Icon */}
+                <svg 
+                  className="text-white" 
+                  width="16" 
+                  height="16" 
+                  viewBox="0 0 24 24" 
+                  fill="currentColor"
+                >
+                  <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+                </svg>
               </div>
             </div>
             <h1 className="text-2xl font-bold text-gray-800">EV Charging Meter</h1>
@@ -424,7 +419,7 @@ const EVChargingMeter = () => {
           <div className="mt-6 pt-4 border-t border-gray-200">
             <button
               onClick={() => setCurrentView('reports')}
-              className="w-full bg-gray-800 text-white py-3 rounded-xl flex items-center justify-center space-x-2 transition-colors hover:bg-gray-700 mb-3"
+              className="w-full bg-black text-white py-3 rounded-xl flex items-center justify-center space-x-2 transition-colors hover:bg-gray-800 mb-3"
             >
               <BarChart3 size={20} />
               <span>View Reports</span>
@@ -432,7 +427,7 @@ const EVChargingMeter = () => {
             
             <button
               onClick={() => setCurrentView('settings')}
-              className="w-full bg-blue-600 text-white py-3 rounded-xl flex items-center justify-center space-x-2 transition-colors hover:bg-blue-700 mb-3"
+              className="w-full bg-black text-white py-3 rounded-xl flex items-center justify-center space-x-2 transition-colors hover:bg-gray-800 mb-3"
             >
               <Settings size={20} />
               <span>Settings</span>
@@ -547,31 +542,13 @@ const EVChargingMeter = () => {
                     // Prevent any manual input/typing
                     e.preventDefault();
                   }}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer custom-date-input"
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                   style={{
-                    fontSize: '16px'
+                    fontSize: '16px',
+                    WebkitAppearance: 'none',
+                    MozAppearance: 'textfield'
                   }}
                 />
-                <style dangerouslySetInnerHTML={{
-                  __html: `
-                    .custom-date-input::-webkit-calendar-picker-indicator {
-                      width: 32px !important;
-                      height: 32px !important;
-                      padding: 0 !important;
-                      background: #374151 !important;
-                      border-radius: 6px !important;
-                      cursor: pointer !important;
-                      margin-right: 4px !important;
-                      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E") !important;
-                      background-repeat: no-repeat !important;
-                      background-position: center !important;
-                      background-size: 18px 18px !important;
-                    }
-                    .custom-date-input::-webkit-calendar-picker-indicator:hover {
-                      background-color: #1f2937 !important;
-                    }
-                  `
-                }} />
               </div>
 
               <div>
