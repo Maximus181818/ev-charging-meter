@@ -1,6 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown } from 'lucide-react';
 
+// Separate component for adding new users to prevent re-render issues
+const AddUserComponent = ({ users, onAddUser }) => {
+  const [newUserName, setNewUserName] = useState('');
+  
+  const handleAddUser = () => {
+    if (newUserName.trim() && !users.includes(newUserName.trim())) {
+      onAddUser(newUserName.trim());
+      setNewUserName('');
+    }
+  };
+
+  return (
+    <div className="border-t pt-4">
+      <label className="block text-sm font-medium text-gray-700 mb-2">Add New User</label>
+      <div className="flex space-x-2">
+        <input
+          type="text"
+          placeholder="Enter user name"
+          value={newUserName}
+          onChange={(e) => setNewUserName(e.target.value)}
+          onKeyPress={(e) => {
+            if (e.key === 'Enter') {
+              handleAddUser();
+            }
+          }}
+          className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+        />
+        <button
+          type="button"
+          onClick={handleAddUser}
+          disabled={!newUserName.trim() || users.includes(newUserName.trim())}
+          className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+        >
+          <Plus size={20} />
+        </button>
+      </div>
+      {newUserName.trim() && users.includes(newUserName.trim()) && (
+        <p className="text-red-500 text-sm mt-1">User already exists</p>
+      )}
+    </div>
+  );
+};
+
 const EVChargingMeter = () => {
   const [currentView, setCurrentView] = useState('main');
   const [selectedUser, setSelectedUser] = useState('');
@@ -46,11 +89,12 @@ const EVChargingMeter = () => {
   });
   
   const [editingUser, setEditingUser] = useState(null);
-  const [newUserName, setNewUserName] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
   const [showConfirmRestart, setShowConfirmRestart] = useState(false);
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [adminPassword, setAdminPassword] = useState('');
+  const [showConfirmDeleteUser, setShowConfirmDeleteUser] = useState(false);
+  const [userToDelete, setUserToDelete] = useState('');
   
   // Sorting state for reports table
   const [sortConfig, setSortConfig] = useState({
@@ -310,17 +354,21 @@ const EVChargingMeter = () => {
   };
 
   // User management functions
-  const addUser = () => {
-    if (newUserName.trim() && !users.includes(newUserName.trim())) {
-      setUsers([...users, newUserName.trim()]);
-      setNewUserName('');
-    }
+  const addUser = (userName) => {
+    setUsers([...users, userName]);
   };
 
   const deleteUser = (userToDelete) => {
     if (users.length > 1) {
-      setUsers(users.filter(user => user !== userToDelete));
+      setUserToDelete(userToDelete);
+      setShowConfirmDeleteUser(true);
     }
+  };
+
+  const confirmDeleteUser = () => {
+    setUsers(users.filter(user => user !== userToDelete));
+    setShowConfirmDeleteUser(false);
+    setUserToDelete('');
   };
 
   const updateUser = (oldName, newName) => {
@@ -1022,33 +1070,7 @@ const EVChargingMeter = () => {
                 ))}
               </div>
 
-              <div className="border-t pt-4">
-                <label className="block text-sm font-medium text-gray-700 mb-2">Add New User</label>
-                <div className="flex space-x-2">
-                  <input
-                    type="text"
-                    placeholder="Enter user name"
-                    value={newUserName}
-                    onChange={(e) => setNewUserName(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') {
-                        addUser();
-                      }
-                    }}
-                    className="flex-1 p-3 border border-gray-300 rounded-lg"
-                  />
-                  <button
-                    onClick={addUser}
-                    disabled={!newUserName.trim() || users.includes(newUserName.trim())}
-                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  >
-                    <Plus size={20} />
-                  </button>
-                </div>
-                {newUserName.trim() && users.includes(newUserName.trim()) && (
-                  <p className="text-red-500 text-sm mt-1">User already exists</p>
-                )}
-              </div>
+              <AddUserComponent users={users} onAddUser={addUser} />
             </div>
 
             <div className="border-t pt-6">
@@ -1062,6 +1084,43 @@ const EVChargingMeter = () => {
                 </p>
               </div>
             </div>
+
+            {/* User Delete Confirmation Modal */}
+            {showConfirmDeleteUser && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                  <div className="text-center">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                      <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Delete User</h3>
+                    <p className="text-sm text-gray-600 mb-6">
+                      Are you sure you want to delete user <strong>"{userToDelete}"</strong>? 
+                      This action cannot be undone.
+                    </p>
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => {
+                          setShowConfirmDeleteUser(false);
+                          setUserToDelete('');
+                        }}
+                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                      >
+                        No
+                      </button>
+                      <button
+                        onClick={confirmDeleteUser}
+                        className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                      >
+                        Yes
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
