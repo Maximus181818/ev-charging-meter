@@ -33,6 +33,9 @@ const EVChargingMeter = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [newUserName, setNewUserName] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
+  const [showConfirmRestart, setShowConfirmRestart] = useState(false);
+  const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
+  const [adminPassword, setAdminPassword] = useState('');
   
   // Sorting state for reports table
   const [sortConfig, setSortConfig] = useState({
@@ -265,6 +268,26 @@ const EVChargingMeter = () => {
     }
   };
 
+  // Handle admin access with password
+  const handleAdminAccess = () => {
+    if (adminPassword === 'DBreset18') {
+      setCurrentView('admin');
+      setShowPasswordPrompt(false);
+      setAdminPassword('');
+    } else {
+      alert('Incorrect password. Access denied.');
+      setAdminPassword('');
+    }
+  };
+
+  // Handle database restart (admin function)
+  const handleRestartDatabase = () => {
+    setChargingLogs([]);
+    setShowConfirmRestart(false);
+    // Show a brief confirmation message
+    alert('Database restarted successfully! All charging logs have been deleted.');
+  };
+
   // User management functions
   const addUser = () => {
     if (newUserName.trim() && !users.includes(newUserName.trim())) {
@@ -345,8 +368,71 @@ const EVChargingMeter = () => {
               <Settings size={20} />
               <span>Settings</span>
             </button>
-            
-            <p className="text-center text-blue-600 text-sm">Created by Guy</p>
+
+            {/* Created by text with small admin button */}
+            <div className="flex items-center justify-center space-x-2 mt-3">
+              <button
+                onClick={() => setShowPasswordPrompt(true)}
+                className="bg-red-600 text-white px-2 py-1 rounded text-xs opacity-20 hover:opacity-100 transition-opacity"
+                title="Admin Panel"
+              >
+                A
+              </button>
+              <p className="text-center text-blue-600 text-sm">Created by Guy</p>
+            </div>
+
+            {/* Password Prompt Modal */}
+            {showPasswordPrompt && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                  <div className="text-center">
+                    <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                      <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 0h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">Admin Access Required</h3>
+                    <p className="text-sm text-gray-600 mb-4">
+                      Enter the admin password to access the control panel:
+                    </p>
+                    <input
+                      type="password"
+                      value={adminPassword}
+                      onChange={(e) => setAdminPassword(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          handleAdminAccess();
+                        } else if (e.key === 'Escape') {
+                          setShowPasswordPrompt(false);
+                          setAdminPassword('');
+                        }
+                      }}
+                      placeholder="Enter password"
+                      className="w-full p-3 border border-gray-300 rounded-lg text-center font-mono text-sm mb-4 focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                      autoFocus
+                    />
+                    <div className="flex space-x-3">
+                      <button
+                        onClick={() => {
+                          setShowPasswordPrompt(false);
+                          setAdminPassword('');
+                        }}
+                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleAdminAccess}
+                        disabled={!adminPassword.trim()}
+                        className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                      >
+                        Access
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -961,12 +1047,130 @@ const EVChargingMeter = () => {
     </div>
   );
 
+  // Secret Admin Screen
+  const AdminScreen = () => (
+    <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 p-4">
+      <div className="max-w-md mx-auto">
+        <div className="bg-white rounded-2xl shadow-xl p-6 border-2 border-red-200">
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => setCurrentView('main')}
+              className="mr-4 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h2 className="text-xl font-bold text-red-800">🔒 Admin Panel</h2>
+              <p className="text-sm text-red-600">Restricted Access</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {/* Database Management */}
+            <div className="bg-red-50 p-4 rounded-xl border border-red-200">
+              <h3 className="text-lg font-semibold text-red-800 mb-4 flex items-center">
+                <svg className="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+                Database Management
+              </h3>
+              
+              <div className="mb-4">
+                <div className="bg-white p-3 rounded-lg border">
+                  <p className="text-sm text-gray-700 mb-2">
+                    <strong>Current Database Status:</strong>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    • Total Charging Sessions: <span className="font-semibold text-red-600">{chargingLogs.length}</span>
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    • Total Users: <span className="font-semibold text-blue-600">{users.length}</span> (will be preserved)
+                  </p>
+                  <p className="text-sm text-gray-600">
+                    • Total Hours Logged: <span className="font-semibold text-green-600">
+                      {chargingLogs.reduce((sum, log) => sum + log.duration, 0).toFixed(1)}h
+                    </span>
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4">
+                <p className="text-sm text-yellow-800">
+                  <strong>⚠️ Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
+                </p>
+              </div>
+
+              <button
+                onClick={() => setShowConfirmRestart(true)}
+                disabled={chargingLogs.length === 0}
+                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
+              >
+                {chargingLogs.length === 0 ? 'Database Already Empty' : '🗑️ Restart Database'}
+              </button>
+            </div>
+
+            {/* System Information */}
+            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
+              <h3 className="text-lg font-semibold text-blue-800 mb-3">System Information</h3>
+              <div className="space-y-2 text-sm">
+                <p className="text-blue-700">
+                  <strong>App Version:</strong> 1.0.0
+                </p>
+                <p className="text-blue-700">
+                  <strong>Last Reset:</strong> {chargingLogs.length === 0 ? 'Recently' : 'Never'}
+                </p>
+                <p className="text-blue-700">
+                  <strong>Session Storage:</strong> Browser Memory
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Confirmation Modal */}
+          {showConfirmRestart && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+              <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 shadow-2xl">
+                <div className="text-center">
+                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
+                    <svg className="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Confirm Database Restart</h3>
+                  <p className="text-sm text-gray-600 mb-6">
+                    Are you sure you want to delete all <strong>{chargingLogs.length}</strong> charging logs? 
+                    This action cannot be undone.
+                  </p>
+                  <div className="flex space-x-3">
+                    <button
+                      onClick={() => setShowConfirmRestart(false)}
+                      className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-400 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handleRestartDatabase}
+                      className="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+                    >
+                      Yes, Delete All
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <div className="font-sans">
       {currentView === 'main' && <MainScreen />}
       {currentView === 'log' && <LogScreen />}
       {currentView === 'reports' && <ReportsScreen />}
       {currentView === 'settings' && <SettingsScreen />}
+      {currentView === 'admin' && <AdminScreen />}
     </div>
   );
 };
