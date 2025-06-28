@@ -32,7 +32,7 @@ const AddUserComponent = ({ users, onAddUser }) => {
           type="button"
           onClick={handleAddUser}
           disabled={!newUserName.trim() || users.includes(newUserName.trim())}
-          className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
+          className="px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 disabled:bg-gray-300 disabled:cursor-not-allowed"
         >
           <Plus size={20} />
         </button>
@@ -512,7 +512,7 @@ const EVChargingMeter = () => {
             <div className="flex items-center mb-6">
               <button
                 onClick={() => setCurrentView('main')}
-                className="mr-4 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                className="mr-4 p-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
               >
                 <ArrowLeft size={20} />
               </button>
@@ -630,7 +630,7 @@ const EVChargingMeter = () => {
               <button
                 onClick={handleSubmitLog}
                 disabled={!newLog.date || !newLog.duration}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 transition-colors hover:bg-blue-700 disabled:hover:bg-gray-300"
+                className="w-full bg-black text-white py-3 rounded-xl font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 transition-colors hover:bg-gray-800 disabled:hover:bg-gray-300"
               >
                 Submit Log
               </button>
@@ -1007,7 +1007,7 @@ const EVChargingMeter = () => {
           <div className="flex items-center mb-6">
             <button
               onClick={() => setCurrentView('main')}
-              className="mr-4 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="mr-4 p-2 rounded-lg bg-black text-white hover:bg-gray-800 transition-colors"
             >
               <ArrowLeft size={20} />
             </button>
@@ -1061,7 +1061,7 @@ const EVChargingMeter = () => {
                         <div className="flex space-x-2">
                           <button
                             onClick={() => setEditingUser(user)}
-                            className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg"
+                            className="p-2 text-black hover:bg-gray-100 rounded-lg"
                           >
                             <Edit2 size={16} />
                           </button>
