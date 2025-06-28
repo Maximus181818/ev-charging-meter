@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown } from 'lucide-react';
 
 const EVChargingMeter = () => {
@@ -87,31 +87,6 @@ const EVChargingMeter = () => {
     // Use absolute value and modulo to get a valid index
     const colorIndex = Math.abs(hash) % colors.length;
     return colors[colorIndex];
-  };
-
-  // Generate border style for user frames
-  const getUserBorderStyle = (userName) => {
-    const colorMap = {
-      'bg-blue-500': '#3b82f6',
-      'bg-green-500': '#10b981', 
-      'bg-purple-500': '#8b5cf6',
-      'bg-red-500': '#ef4444',
-      'bg-yellow-500': '#eab308',
-      'bg-indigo-500': '#6366f1',
-      'bg-pink-500': '#ec4899',
-      'bg-teal-500': '#14b8a6',
-      'bg-orange-500': '#f97316',
-      'bg-cyan-500': '#06b6d4'
-    };
-    
-    const userColorClass = getUserColor(userName);
-    const hexColor = colorMap[userColorClass] || '#6b7280';
-    
-    return {
-      borderColor: hexColor,
-      borderWidth: '4px',
-      borderStyle: 'solid'
-    };
   };
 
   // Generate gradient class for user cards
@@ -354,146 +329,143 @@ const EVChargingMeter = () => {
   );
 
   // Log Screen with colored frame
-  const LogScreen = () => {
-    const borderStyle = selectedUser ? getUserBorderStyle(selectedUser) : { borderColor: '#6b7280', borderWidth: '4px', borderStyle: 'solid' };
-    
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
-        <div className="max-w-md mx-auto">
-          <div className="bg-white rounded-2xl shadow-xl p-6" style={borderStyle}>
-            <div className="flex items-center mb-6">
-              <button
-                onClick={() => setCurrentView('main')}
-                className="mr-4 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
-              >
-                <ArrowLeft size={20} />
-              </button>
-              <div>
-                <h2 className="text-xl font-bold text-gray-800">Log Charging Session</h2>
-                <p className="text-xl font-bold text-blue-600">{selectedUser}</p>
-              </div>
+  const LogScreen = () => (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
+      <div className="max-w-md mx-auto">
+        <div className={`bg-white rounded-2xl shadow-xl p-6 border-4 ${getUserColor(selectedUser).replace('bg-', 'border-')}`}>
+          <div className="flex items-center mb-6">
+            <button
+              onClick={() => setCurrentView('main')}
+              className="mr-4 p-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+            >
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <h2 className="text-xl font-bold text-gray-800">Log Charging Session</h2>
+              <p className="text-xl font-bold text-blue-600">{selectedUser}</p>
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
+              <input
+                type="date"
+                value={newLog.date}
+                onChange={(e) => setNewLog({ ...newLog, date: e.target.value })}
+                className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
             </div>
 
-            <div className="space-y-6">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                <input
-                  type="date"
-                  value={newLog.date}
-                  onChange={(e) => setNewLog({ ...newLog, date: e.target.value })}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-                <div className="space-y-3">
-                  <select
-                    value={newLog.duration}
-                    onChange={(e) => {
-                      const selectedOption = timeOptions.find(option => option.value == e.target.value);
-                      if (selectedOption) {
-                        setNewLog({ 
-                          ...newLog, 
-                          duration: e.target.value,
-                          durationDisplay: selectedOption.label,
-                          isDropdownSelected: true,
-                          isManualInput: false
-                        });
-                      } else {
-                        setNewLog({ 
-                          ...newLog, 
-                          duration: '',
-                          durationDisplay: '',
-                          isDropdownSelected: false,
-                          isManualInput: false
-                        });
-                      }
-                    }}
-                    disabled={newLog.isManualInput}
-                    className={`w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      newLog.isManualInput 
-                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                        : ''
-                    }`}
-                  >
-                    <option value="">Select duration</option>
-                    {timeOptions.map(option => (
-                      <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                  </select>
-                  
-                  <div className="text-center text-gray-500 text-sm">or</div>
-                  
-                  <input
-                    type="number"
-                    step="0.1"
-                    placeholder="Enter custom hours (e.g., 2.5)"
-                    value={newLog.isDropdownSelected ? '' : newLog.duration}
-                    onChange={(e) => {
-                      let value = e.target.value;
-                      // Limit to one decimal place and numbers only
-                      if (value.includes('.')) {
-                        const parts = value.split('.');
-                        if (parts[1] && parts[1].length > 1) {
-                          value = parts[0] + '.' + parts[1].substring(0, 1);
-                        }
-                      }
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
+              <div className="space-y-3">
+                <select
+                  value={newLog.duration}
+                  onChange={(e) => {
+                    const selectedOption = timeOptions.find(option => option.value == e.target.value);
+                    if (selectedOption) {
                       setNewLog({ 
                         ...newLog, 
-                        duration: value,
+                        duration: e.target.value,
+                        durationDisplay: selectedOption.label,
+                        isDropdownSelected: true,
+                        isManualInput: false
+                      });
+                    } else {
+                      setNewLog({ 
+                        ...newLog, 
+                        duration: '',
                         durationDisplay: '',
                         isDropdownSelected: false,
-                        isManualInput: value.length > 0
+                        isManualInput: false
                       });
-                    }}
-                    disabled={newLog.isDropdownSelected}
-                    className={`w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                      newLog.isDropdownSelected 
-                        ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
-                        : ''
-                    }`}
-                  />
-                  
-                  {newLog.durationDisplay && (
-                    <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded-lg">
-                      Selected: {newLog.durationDisplay}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={handleSubmitLog}
-                disabled={!newLog.date || !newLog.duration}
-                className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 transition-colors hover:bg-blue-700 disabled:hover:bg-gray-300"
-              >
-                Submit Log
-              </button>
-
-              {/* Success Message */}
-              {showSuccessMessage && (
-                <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-xl text-center">
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-                    </svg>
-                    <span className="font-semibold">Submitted Successfully!</span>
+                    }
+                  }}
+                  disabled={newLog.isManualInput}
+                  className={`w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    newLog.isManualInput 
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                      : ''
+                  }`}
+                >
+                  <option value="">Select duration</option>
+                  {timeOptions.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+                
+                <div className="text-center text-gray-500 text-sm">or</div>
+                
+                <input
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter custom hours (e.g., 2.5)"
+                  value={newLog.isDropdownSelected ? '' : newLog.duration}
+                  onChange={(e) => {
+                    let value = e.target.value;
+                    // Limit to one decimal place and numbers only
+                    if (value.includes('.')) {
+                      const parts = value.split('.');
+                      if (parts[1] && parts[1].length > 1) {
+                        value = parts[0] + '.' + parts[1].substring(0, 1);
+                      }
+                    }
+                    setNewLog({ 
+                      ...newLog, 
+                      duration: value,
+                      durationDisplay: '',
+                      isDropdownSelected: false,
+                      isManualInput: value.length > 0
+                    });
+                  }}
+                  disabled={newLog.isDropdownSelected}
+                  className={`w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+                    newLog.isDropdownSelected 
+                      ? 'bg-gray-200 text-gray-500 cursor-not-allowed' 
+                      : ''
+                  }`}
+                />
+                
+                {newLog.durationDisplay && (
+                  <div className="text-sm text-blue-600 bg-blue-50 p-2 rounded-lg">
+                    Selected: {newLog.durationDisplay}
                   </div>
-                  <p className="text-sm mt-1">Returning to main screen...</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
+
+            <button
+              onClick={handleSubmitLog}
+              disabled={!newLog.date || !newLog.duration}
+              className="w-full bg-blue-600 text-white py-3 rounded-xl font-semibold disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500 transition-colors hover:bg-blue-700 disabled:hover:bg-gray-300"
+            >
+              Submit Log
+            </button>
+
+            {/* Success Message */}
+            {showSuccessMessage && (
+              <div className="mt-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-xl text-center">
+                <div className="flex items-center justify-center space-x-2">
+                  <svg className="w-5 h-5 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                  <span className="font-semibold">Submitted Successfully!</span>
+                </div>
+                <p className="text-sm mt-1">Returning to main screen...</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
 
   // Reports Screen with sorting functionality
   const ReportsScreen = () => {
     // Get current month for default filtering
     const currentDate = new Date();
+    const currentMonthString = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}`;
     
     // Apply default current month filter if no filters are set
     const getDefaultFilteredReports = () => {
@@ -770,7 +742,6 @@ const EVChargingMeter = () => {
               </div>
             </div>
 
-            {/* Sortable Table */}
             <div className="overflow-x-auto overflow-y-auto max-h-96 border border-gray-200 rounded-lg">
               <table className="w-full">
                 <thead className="bg-gray-50 sticky top-0">
