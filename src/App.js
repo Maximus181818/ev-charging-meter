@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown } from 'lucide-react';
 
 const EVChargingMeter = () => {
   const [currentView, setCurrentView] = useState('main');
   const [selectedUser, setSelectedUser] = useState('');
   const [users, setUsers] = useState(['Gal', 'Guy', 'Other']);
-  const [chargingLogs, setChargingLogs] = useState([
-    { id: 1, user: 'Gal', date: '2025-06-25', duration: 2.5, timestamp: Date.now() },
-    { id: 2, user: 'Guy', date: '2025-06-24', duration: 1.5, timestamp: Date.now() },
-    { id: 3, user: 'Other', date: '2025-06-23', duration: 3.0, timestamp: Date.now() },
-    { id: 4, user: 'Gal', date: '2025-06-20', duration: 2.0, timestamp: Date.now() },
-    { id: 5, user: 'Guy', date: '2025-05-28', duration: 1.8, timestamp: Date.now() },
-    { id: 6, user: 'Other', date: '2025-05-25', duration: 2.2, timestamp: Date.now() }
-  ]);
+  
+  // Initialize charging logs from localStorage or default data
+  const getInitialChargingLogs = () => {
+    const stored = localStorage.getItem('evChargingLogs');
+    if (stored) {
+      try {
+        return JSON.parse(stored);
+      } catch (error) {
+        console.error('Error parsing stored data:', error);
+      }
+    }
+    // Default data if nothing stored
+    return [
+      { id: 1, user: 'Gal', date: '2025-06-25', duration: 2.5, timestamp: Date.now() },
+      { id: 2, user: 'Guy', date: '2025-06-24', duration: 1.5, timestamp: Date.now() },
+      { id: 3, user: 'Other', date: '2025-06-23', duration: 3.0, timestamp: Date.now() },
+      { id: 4, user: 'Gal', date: '2025-06-20', duration: 2.0, timestamp: Date.now() },
+      { id: 5, user: 'Guy', date: '2025-05-28', duration: 1.8, timestamp: Date.now() },
+      { id: 6, user: 'Other', date: '2025-05-25', duration: 2.2, timestamp: Date.now() }
+    ];
+  };
+
+  const [chargingLogs, setChargingLogs] = useState(getInitialChargingLogs);
   
   const [newLog, setNewLog] = useState({
     user: '',
@@ -42,6 +57,11 @@ const EVChargingMeter = () => {
     key: null,
     direction: 'asc'
   });
+
+  // Save charging logs to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('evChargingLogs', JSON.stringify(chargingLogs));
+  }, [chargingLogs]);
 
   // Generate time options (30 min to 24 hours, 30 min increments)
   const generateTimeOptions = () => {
@@ -283,9 +303,10 @@ const EVChargingMeter = () => {
   // Handle database restart (admin function)
   const handleRestartDatabase = () => {
     setChargingLogs([]);
+    localStorage.removeItem('evChargingLogs'); // Clear localStorage as well
     setShowConfirmRestart(false);
     // Show a brief confirmation message
-    alert('Database restarted successfully! All charging logs have been deleted.');
+    alert('Database restarted successfully! All charging logs have been permanently deleted.');
   };
 
   // User management functions
