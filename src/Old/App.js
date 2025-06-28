@@ -537,7 +537,17 @@ const EVChargingMeter = () => {
                   value={newLog.date}
                   onChange={(e) => setNewLog({ ...newLog, date: e.target.value })}
                   max={new Date().toISOString().split('T')[0]}
-                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  onKeyDown={(e) => {
+                    // Allow tab, enter, escape, and arrow keys for navigation
+                    if (!['Tab', 'Enter', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                  onInput={(e) => {
+                    // Prevent any manual input/typing
+                    e.preventDefault();
+                  }}
+                  className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
                 />
               </div>
 
@@ -1177,7 +1187,7 @@ const EVChargingMeter = () => {
 
               <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4">
                 <p className="text-sm text-yellow-800">
-                  <strong>⚠️ Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
+                  <strong⚠️ Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
                 </p>
               </div>
 
