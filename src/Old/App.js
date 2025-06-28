@@ -536,6 +536,7 @@ const EVChargingMeter = () => {
                   type="date"
                   value={newLog.date}
                   onChange={(e) => setNewLog({ ...newLog, date: e.target.value })}
+                  max={new Date().toISOString().split('T')[0]}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
               </div>
