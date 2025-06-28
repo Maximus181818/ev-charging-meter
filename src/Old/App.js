@@ -373,20 +373,18 @@ const EVChargingMeter = () => {
       <div className="max-w-md mx-auto">
         <div className="bg-white rounded-2xl shadow-xl p-6 mb-6">
           <div className="text-center mb-6">
-            <div className="bg-black w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 relative">
-              <div className="flex items-center space-x-1">
-                <span className="text-white text-lg font-bold">ITI</span>
-                {/* Lightning/EV Charging Icon */}
-                <svg 
-                  className="text-white" 
-                  width="16" 
-                  height="16" 
-                  viewBox="0 0 24 24" 
-                  fill="currentColor"
-                >
-                  <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
-                </svg>
-              </div>
+            <div className="bg-black w-16 h-16 rounded-full flex flex-col items-center justify-center mx-auto mb-4 relative">
+              <span className="text-white text-lg font-bold leading-none">ITI</span>
+              {/* Lightning/EV Charging Icon positioned below */}
+              <svg 
+                className="text-white mt-0.5" 
+                width="12" 
+                height="12" 
+                viewBox="0 0 24 24" 
+                fill="currentColor"
+              >
+                <path d="M7 2v11h3v9l7-12h-4l4-8z"/>
+              </svg>
             </div>
             <h1 className="text-2xl font-bold text-gray-800">EV Charging Meter</h1>
           </div>

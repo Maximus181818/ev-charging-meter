@@ -440,7 +440,7 @@ const EVChargingMeter = () => {
               >
                 A
               </button>
-              <p className="text-center text-blue-600 text-sm">Created by Guy</p>
+              <p className="text-center text-black text-sm">Created by Guy</p>
             </div>
 
             {/* Password Prompt Modal */}
