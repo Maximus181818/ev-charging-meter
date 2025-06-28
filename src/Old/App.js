@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown, Calendar } from 'lucide-react';
 
 // Separate component for adding new users to prevent re-render issues
 const AddUserComponent = ({ users, onAddUser }) => {
@@ -548,7 +548,28 @@ const EVChargingMeter = () => {
                     e.preventDefault();
                   }}
                   className="w-full p-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent cursor-pointer"
+                  style={{
+                    fontSize: '16px'
+                  }}
                 />
+                <style jsx>{`
+                  input[type="date"]::-webkit-calendar-picker-indicator {
+                    width: 32px;
+                    height: 32px;
+                    padding: 0;
+                    background: #374151;
+                    border-radius: 6px;
+                    cursor: pointer;
+                    margin-right: 4px;
+                    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+                    background-repeat: no-repeat;
+                    background-position: center;
+                    background-size: 18px 18px;
+                  }
+                  input[type="date"]::-webkit-calendar-picker-indicator:hover {
+                    background-color: #1f2937;
+                  }
+                `}</style>
               </div>
 
               <div>
