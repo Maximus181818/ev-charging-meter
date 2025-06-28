@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter, ChevronUp, ChevronDown } from 'lucide-react';
+import { ArrowLeft, BarChart3, Settings, Car, Plus, Edit2, Trash2, Save, X, Users, FileDown, Filter } from 'lucide-react';
 
 const EVChargingMeter = () => {
   const [currentView, setCurrentView] = useState('main');
@@ -33,12 +33,6 @@ const EVChargingMeter = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [newUserName, setNewUserName] = useState('');
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
-  
-  // Sorting state for reports table
-  const [sortConfig, setSortConfig] = useState({
-    key: null,
-    direction: 'asc'
-  });
 
   // Generate time options (30 min to 24 hours, 30 min increments)
   const generateTimeOptions = () => {
@@ -168,45 +162,6 @@ const EVChargingMeter = () => {
     return filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
   };
 
-  // Table sorting function
-  const handleSort = (key) => {
-    let direction = 'asc';
-    if (sortConfig.key === key && sortConfig.direction === 'asc') {
-      direction = 'desc';
-    }
-    setSortConfig({ key, direction });
-  };
-
-  // Sort filtered logs based on sort configuration
-  const getSortedLogs = (logs) => {
-    if (!sortConfig.key) return logs;
-
-    return [...logs].sort((a, b) => {
-      let aValue = a[sortConfig.key];
-      let bValue = b[sortConfig.key];
-
-      // Handle different data types
-      if (sortConfig.key === 'date') {
-        aValue = new Date(aValue);
-        bValue = new Date(bValue);
-      } else if (sortConfig.key === 'duration') {
-        aValue = parseFloat(aValue);
-        bValue = parseFloat(bValue);
-      } else if (sortConfig.key === 'user') {
-        aValue = aValue.toLowerCase();
-        bValue = bValue.toLowerCase();
-      }
-
-      if (aValue < bValue) {
-        return sortConfig.direction === 'asc' ? -1 : 1;
-      }
-      if (aValue > bValue) {
-        return sortConfig.direction === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
-  };
-
   const { userStats, totalTime } = getUserStats();
 
   // Handle new log submission
@@ -328,7 +283,7 @@ const EVChargingMeter = () => {
     </div>
   );
 
-  // Log Screen with colored frame
+  // Log Screen
   const LogScreen = () => (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
       <div className="max-w-md mx-auto">
@@ -461,7 +416,7 @@ const EVChargingMeter = () => {
     </div>
   );
 
-  // Reports Screen with sorting functionality
+  // Reports Screen
   const ReportsScreen = () => {
     // Get current month for default filtering
     const currentDate = new Date();
@@ -485,7 +440,6 @@ const EVChargingMeter = () => {
     };
 
     const filteredLogs = getDefaultFilteredReports();
-    const sortedLogs = getSortedLogs(filteredLogs);
     const filteredTotal = filteredLogs.reduce((sum, log) => sum + log.duration, 0);
 
     // Calculate user summaries for filtered data
@@ -511,16 +465,6 @@ const EVChargingMeter = () => {
     // Check if we're showing current month (default view)
     const isShowingCurrentMonth = reportFilters.user === 'all' && !reportFilters.month && !reportFilters.startDate && !reportFilters.endDate;
 
-    // Render sort icon
-    const renderSortIcon = (column) => {
-      if (sortConfig.key !== column) {
-        return <ChevronUp className="w-4 h-4 text-gray-400" />;
-      }
-      return sortConfig.direction === 'asc' ? 
-        <ChevronUp className="w-4 h-4 text-blue-600" /> : 
-        <ChevronDown className="w-4 h-4 text-blue-600" />;
-    };
-
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 p-4">
         <div className="max-w-6xl mx-auto">
@@ -542,7 +486,7 @@ const EVChargingMeter = () => {
                   // Create CSV content with proper headers
                   const csvContent = [
                     ['Username', 'Date', 'Duration (hours)'],
-                    ...sortedLogs.map(log => [log.user, log.date, log.duration.toString()])
+                    ...filteredLogs.map(log => [log.user, log.date, log.duration.toString()])
                   ].map(row => row.map(field => `"${field}"`).join(',')).join('\n');
 
                   // Create and download the file
@@ -746,37 +690,13 @@ const EVChargingMeter = () => {
               <table className="w-full">
                 <thead className="bg-gray-50 sticky top-0">
                   <tr className="border-b-2 border-gray-200">
-                    <th 
-                      className="text-left py-3 px-4 font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('user')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>User</span>
-                        {renderSortIcon('user')}
-                      </div>
-                    </th>
-                    <th 
-                      className="text-left py-3 px-4 font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('date')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>Date</span>
-                        {renderSortIcon('date')}
-                      </div>
-                    </th>
-                    <th 
-                      className="text-left py-3 px-4 font-semibold cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSort('duration')}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span>Duration</span>
-                        {renderSortIcon('duration')}
-                      </div>
-                    </th>
+                    <th className="text-left py-3 px-4 font-semibold">User</th>
+                    <th className="text-left py-3 px-4 font-semibold">Date</th>
+                    <th className="text-left py-3 px-4 font-semibold">Duration</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {sortedLogs.length > 0 ? sortedLogs.map((log) => (
+                  {filteredLogs.length > 0 ? filteredLogs.map((log) => (
                     <tr key={log.id} className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="py-3 px-4 flex items-center">
                         <span className={`inline-block w-8 h-8 rounded-full ${getUserColor(log.user)} text-white text-xs flex items-center justify-center mr-3`}>
