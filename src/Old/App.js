@@ -1187,7 +1187,7 @@ const EVChargingMeter = () => {
 
               <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4">
                 <p className="text-sm text-yellow-800">
-                  <strong⚠️ Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
+                  <strong>Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
                 </p>
               </div>
 
