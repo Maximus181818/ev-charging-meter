@@ -49,9 +49,9 @@ const EVChargingMeter = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [users, setUsers] = useState(['Gal', 'Guy', 'Other']);
   
-  // Initialize charging logs from localStorage or default data
+  // Initialize charging logs from default data
   const getInitialChargingLogs = () => {
-    // Default data since localStorage is not available
+    // Default data for initial app state
     return [
       { id: 1, user: 'Gal', date: '2025-06-25', duration: 2.5, timestamp: Date.now() },
       { id: 2, user: 'Guy', date: '2025-06-24', duration: 1.5, timestamp: Date.now() },
@@ -63,6 +63,7 @@ const EVChargingMeter = () => {
   };
 
   const [chargingLogs, setChargingLogs] = useState(getInitialChargingLogs);
+  const [isDatabaseReset, setIsDatabaseReset] = useState(false);
   
   const [newLog, setNewLog] = useState({
     user: '',
@@ -334,6 +335,7 @@ const EVChargingMeter = () => {
   // Handle database restart (admin function)
   const handleRestartDatabase = () => {
     setChargingLogs([]);
+    setIsDatabaseReset(true);
     setShowConfirmRestart(false);
     // Show a brief confirmation message
     alert('Database restarted successfully! All charging logs have been permanently deleted.');
@@ -1206,7 +1208,7 @@ const EVChargingMeter = () => {
                   <strong>App Version:</strong> 1.0.0
                 </p>
                 <p className="text-blue-700">
-                  <strong>Last Reset:</strong> {chargingLogs.length === 0 ? 'Recently' : 'Never'}
+                  <strong>Last Reset:</strong> {isDatabaseReset || chargingLogs.length === 0 ? 'Recently' : 'Never'}
                 </p>
                 <p className="text-blue-700">
                   <strong>Session Storage:</strong> Browser Memory

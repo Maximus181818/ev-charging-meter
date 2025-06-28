@@ -49,10 +49,19 @@ const EVChargingMeter = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [users, setUsers] = useState(['Gal', 'Guy', 'Other']);
   
-  // Initialize charging logs from default data
+  // Initialize charging logs - start with empty array since localStorage isn't available
+  // Users can add their own data, and admin can manage the database
   const getInitialChargingLogs = () => {
-    // Default data for initial app state
-    return [
+    // Start with empty database - users will add their own data
+    return [];
+  };
+
+  const [chargingLogs, setChargingLogs] = useState(getInitialChargingLogs);
+  const [isDatabaseReset, setIsDatabaseReset] = useState(false);
+  
+  // Function to load sample data (only when explicitly requested)
+  const loadSampleData = () => {
+    const sampleData = [
       { id: 1, user: 'Gal', date: '2025-06-25', duration: 2.5, timestamp: Date.now() },
       { id: 2, user: 'Guy', date: '2025-06-24', duration: 1.5, timestamp: Date.now() },
       { id: 3, user: 'Other', date: '2025-06-23', duration: 3.0, timestamp: Date.now() },
@@ -60,10 +69,8 @@ const EVChargingMeter = () => {
       { id: 5, user: 'Guy', date: '2025-05-28', duration: 1.8, timestamp: Date.now() },
       { id: 6, user: 'Other', date: '2025-05-25', duration: 2.2, timestamp: Date.now() }
     ];
+    setChargingLogs(sampleData);
   };
-
-  const [chargingLogs, setChargingLogs] = useState(getInitialChargingLogs);
-  const [isDatabaseReset, setIsDatabaseReset] = useState(false);
   
   const [newLog, setNewLog] = useState({
     user: '',
@@ -1185,19 +1192,30 @@ const EVChargingMeter = () => {
                 </div>
               </div>
 
-              <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg mb-4">
-                <p className="text-sm text-yellow-800">
-                  <strong>Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
-                </p>
-              </div>
+              <div className="space-y-3">
+                {chargingLogs.length === 0 && (
+                  <button
+                    onClick={loadSampleData}
+                    className="w-full bg-green-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors hover:bg-green-700"
+                  >
+                    📊 Load Sample Data
+                  </button>
+                )}
 
-              <button
-                onClick={() => setShowConfirmRestart(true)}
-                disabled={chargingLogs.length === 0}
-                className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
-              >
-                {chargingLogs.length === 0 ? 'Database Already Empty' : '🗑️ Restart Database'}
-              </button>
+                <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
+                  <p className="text-sm text-yellow-800">
+                    <strong>Warning:</strong> This action will permanently delete ALL charging logs. Users will remain unchanged.
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => setShowConfirmRestart(true)}
+                  disabled={chargingLogs.length === 0}
+                  className="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-semibold transition-colors hover:bg-red-700 disabled:bg-gray-300 disabled:cursor-not-allowed disabled:text-gray-500"
+                >
+                  {chargingLogs.length === 0 ? 'Database Already Empty' : '🗑️ Clear All Logs'}
+                </button>
+              </div>
             </div>
 
             {/* System Information */}
